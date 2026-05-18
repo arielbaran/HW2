@@ -19,7 +19,7 @@ int main()
     TransportAddStation(db, 2, "station A");
     TransportAddStation(db, 2, "station b");
 
-    TransportRemoveStation(db, 2, 6);
+    TransportRemoveStation(db, 5, 6);
 
 
     return 0;

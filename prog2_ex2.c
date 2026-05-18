@@ -279,7 +279,13 @@ TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned i
 
         if (curr->id = line_id)
         {
-            printf("found the line\n");
+            // remove the index of the station 
+
+           for(int i = 0; i < index; i++) {
+            
+           }
+            
+
         }
 
         prev = curr;
