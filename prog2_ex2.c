@@ -260,6 +260,12 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
     }
     return TRANSPORT_DOESNT_EXIST;
 }
-TransportResult TransportReportLines(TransportDB *tdb, const char *type);
+TransportResult TransportReportLines(TransportDB *tdb, const char *type){
+    Transport *curr_line = tdb->lines;
+    
+
+
+
+}
 TransportResult TransportReportStations(TransportDB *tdb, int line_id);
 TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to);
