@@ -68,7 +68,10 @@ TransportType parse_type(const char *type)
 {
     if (!type)
         return 0;
-
+    if (strcmp(type, "ALL") == 0)
+    {
+        return ALL;
+    }
     if (strcmp(type, "BUS") == 0)
     {
         return BUS;
@@ -262,7 +265,40 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
 }
 TransportResult TransportReportLines(TransportDB *tdb, const char *type){
     Transport *curr_line = tdb->lines;
+    Station *curr_station = NULL;
+    int numeber_of_stations = 0;
+    TransportType type_line = parse_type(type);
+    int not_empty = 0; //check if there is at least one line of this type
     
+    if(type_line == 0){
+        return TRANSPORT_INVALID_LINE_TYPE;
+    }
+    
+    while (curr_line != NULL)
+    {
+        numeber_of_stations =0;
+        if(curr_line->type == type_line || type_line == ALL){
+            curr_station = curr_line->stations;
+            while (curr_station!=NULL)
+            {
+                numeber_of_stations++;
+                curr_station = curr_station->next_station;
+            }
+            not_empty++;
+
+            //here we need to use the report properly
+            printf("ID: %d\nTYPE: %s\nNumbers of Stations: %d\nPrice: %.2f\n", curr_line->id, type, numeber_of_stations, curr_line->price);
+            printf("-------------------\n");
+            //
+        }
+        curr_line = curr_line->next_line;
+    }
+    if(not_empty){
+        return TRANSPORT_SUCCESS;
+
+    }
+    return TRANSPORT_EMPTY;
+
 
 
 
