@@ -184,13 +184,18 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
 
     Transport *curr = tdb->lines;
     Transport *prev = tdb->lines;
-
+    Station *curr_station = NULL;
     while (curr != NULL)
     {
 
         if (curr->id == line_id && curr->id == tdb->lines->id)
         {
             tdb->lines = curr->next_line;
+            while(curr->stations != NULL){
+                curr_station = curr->stations;
+                curr->stations = curr_station->next_station;
+                free(curr_station);
+            }
             free(curr);
             return TRANSPORT_SUCCESS;
         }
@@ -198,6 +203,11 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         if (curr->id == line_id)
         {
             prev->next_line = curr->next_line;
+            while(curr->stations != NULL){
+                curr_station = curr->stations;
+                curr->stations = curr_station->next_station;
+                free(curr_station);
+            }
             free(curr);
 
             return TRANSPORT_SUCCESS;
@@ -210,6 +220,9 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
 }
 TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *station)
 {
+    if(line_id <= 0){
+        return TRANSPORT_INVALID_LINE_NUMBER;
+    }
     Station *new_station = (Station *)malloc(sizeof(Station));
     if (new_station == NULL)
     {
@@ -244,7 +257,7 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
             return TRANSPORT_SUCCESS;
         }
     }
-    return 0;
+    return TRANSPORT_DOESNT_EXIST;
 }
 TransportResult TransportReportLines(TransportDB *tdb, const char *type);
 TransportResult TransportReportStations(TransportDB *tdb, int line_id);
