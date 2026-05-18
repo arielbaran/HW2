@@ -193,7 +193,6 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         {
             tdb->lines = curr->next_line;
             while(curr->stations != NULL){
-                printf("removing station from %d\n", line_id);
                 curr_station = curr->stations;
                 curr->stations = curr_station->next_station;
                 free(curr_station);
@@ -206,7 +205,6 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         {
             prev->next_line = curr->next_line;
             while(curr->stations != NULL){
-                printf("removing station 2\n");
                 curr_station = curr->stations;
                 curr->stations = curr_station->next_station;
                 free(curr_station);
