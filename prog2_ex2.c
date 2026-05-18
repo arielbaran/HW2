@@ -1,4 +1,5 @@
 #include "prog2_ex2.h"
+#include <stdlib.h>
 #include <string.h>
 
 // ------------------------------------- STRUCTS ------------------------------------- //
@@ -12,23 +13,26 @@ typedef struct stations_t
 typedef struct transport_t
 {
     line_id id;
-    char *type;
+    TransportType type;
     float price;
     struct transport_t *next_line;
 
+} Transport;
+
+typedef struct transport_db
+{
+    struct transport_t *lines;
 } TransportDB;
 
 const char *error_strings[] = {
     "Success",
     "Invalid Arguments",
-    "Cannot open file",
     "Out of memory",
     "Invalid line type",
     "Invalid line number",
     "Invalid price",
     "Line already exists",
     "Line Does not exist",
-    "Station overflow",
     "Transport database is empty"};
 
 const char *type_strings[] = {NULL, "Bus", "Train", NULL, "Metro"};
@@ -62,7 +66,7 @@ void prog2_report_error_message(TransportResult error)
 TransportType parse_type(const char *type)
 {
     if (!type)
-        return NULL;
+        return 0;
 
     if (strcmp(type, "BUS") == 0)
     {
@@ -76,16 +80,22 @@ TransportType parse_type(const char *type)
     {
         return TRAIN;
     }
-    return NULL;
+    return 0;
 }
 
 // ------------------------------------- APP FUNCTIONS ------------------------------------- //
 
 TransportDB *TransportCreate(void)
 {
-    // error checking
-    TransportDB *head = NULL;
-    return head;
+    TransportDB *db = (TransportDB *)malloc(sizeof(TransportDB));
+    if (db == NULL)
+    {
+        prog2_report_error_message(TRANSPORT_OUT_OF_MEMORY);
+        return NULL;
+    }
+    db->lines = NULL;
+
+    return db;
 }
 
 void TransportDestory(TransportDB *tdb);
@@ -94,8 +104,8 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
 {
 
     // invlaid line type
-
-    if (parse_type(type) == NULL)
+    TransportType type_line = parse_type(type);
+    if (type_line == 0)
     {
         prog2_report_error_message(TRANSPORT_INVALID_LINE_TYPE);
     }
@@ -105,24 +115,57 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
         prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
     }
 
-    // invalid price
-
     if (price <= 0)
     {
         prog2_report_error_message(TRANSPORT_INVALID_PRICE);
     }
 
+    Transport *new_line = (Transport *)malloc(sizeof(Transport));
+    new_line->id = line_id;
+    new_line->price = price;
+    new_line->type = type_line;
 
-    // TODO: ALREADY EXIST CHECK
+    if (tdb->lines == NULL)
+    {
+        new_line->next_line = NULL;
+        tdb->lines = new_line;
+        return TRANSPORT_SUCCESS;
+    }
 
+    Transport *prev = tdb->lines;
+    Transport *curr = tdb->lines;
 
+    while (curr != NULL)
+    {
+        if (curr->id >= new_line->id)
+        {
+
+            if (curr->id == new_line->id)
+            {
+                prog2_report_error_message(TRANSPORT_ALREADY_EXISTS);
+                free(new_line);
+                return TRANSPORT_ALREADY_EXISTS;
+            }
+
+            if (curr == tdb->lines)
+            {
+                tdb->lines = new_line;
+                new_line->next_line = curr;
+                return TRANSPORT_SUCCESS;
+            }
+
+            prev->next_line = new_line;
+            new_line->next_line = curr;
+            return TRANSPORT_SUCCESS;
+        }
+        prev = curr;
+        curr = curr->next_line;
+    }
+    prev->next_line = new_line;
+    new_line->next_line = NULL;
+    return TRANSPORT_SUCCESS;
 }
 
-// already exist
-
-// execute
-
-TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id, float price);
 TransportResult TransportRemoveLine(TransportDB *tdb, int line_id);
 TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *station);
 TransportResult TransportReportLines(TransportDB *tdb, const char *type);

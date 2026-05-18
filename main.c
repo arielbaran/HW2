@@ -4,9 +4,10 @@
 int main()
 {
 
-    TransportDB *head = TransportCreate();
+    TransportDB *db = TransportCreate();
+    TransportAddLine(db, "METRO", 1, 23);
+    TransportAddLine(db, "TRAIN", 2, 3);
 
-    
 
     return 0;
 }
