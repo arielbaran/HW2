@@ -20,6 +20,6 @@ int main()
     TransportAddStation(db, 2, "station b");
 
     TransportRemoveStation(db, 2, 6);
-
+    prog2_report_line(2, 3, 3, 4.2);
     return 0;
 }

@@ -294,8 +294,12 @@ TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned i
     return 0;
 }
 
-TransportResult TransportReportLines(TransportDB *tdb, const char *type)
-{
-}
+TransportResult TransportReportLines(TransportDB *tdb, const char *type);
 TransportResult TransportReportStations(TransportDB *tdb, int line_id);
 TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to);
+
+void prog2_report_line(line_id number, TransportType type, int num_stations, double price)
+{
+
+    fprintf(stderr, "Line %8d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
+}
