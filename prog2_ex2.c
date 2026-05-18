@@ -300,6 +300,5 @@ TransportResult TransportReportDirections(TransportDB *tdb, const char *from, co
 
 void prog2_report_line(line_id number, TransportType type, int num_stations, double price)
 {
-
-    fprintf(stderr, "Line %8d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
+    fprintf(stderr, "%s %d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
 }

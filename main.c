@@ -4,6 +4,7 @@
 int main()
 {
 
+    line_id num = 9;
     TransportDB *db = TransportCreate();
     TransportAddLine(db, "METRO", 1, 23);
     TransportAddLine(db, "TRAIN", 2, 3);
@@ -20,6 +21,8 @@ int main()
     TransportAddStation(db, 2, "station b");
 
     TransportRemoveStation(db, 2, 6);
-    prog2_report_line(2, 3, 3, 4.2);
+
+    prog2_report_line(2, 2, 2, 2.2);
+
     return 0;
 }
