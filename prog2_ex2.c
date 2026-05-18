@@ -113,6 +113,7 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
     if (line_id <= 0)
     {
         prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
+        return TRANSPORT_INVALID_LINE_NUMBER;
     }
 
     if (price <= 0)
@@ -236,6 +237,7 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
         return TRANSPORT_OUT_OF_MEMORY;
     }
     strcpy(name, station);
+
     new_station->name_station = name;
     new_station->next_station = NULL;
 
@@ -260,6 +262,35 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
     }
     return TRANSPORT_DOESNT_EXIST;
 }
-TransportResult TransportReportLines(TransportDB *tdb, const char *type);
+
+TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned int index)
+{
+    if (line_id <= 0)
+    {
+        prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
+        return TRANSPORT_INVALID_LINE_NUMBER;
+    }
+
+    Transport *curr = tdb->lines;
+    Transport *prev = tdb->lines;
+
+    while (curr)
+    {
+
+        if (curr->id = line_id)
+        {
+            printf("found the line\n");
+        }
+
+        prev = curr;
+        curr = curr->next_line;
+    }
+
+    return 0;
+}
+
+TransportResult TransportReportLines(TransportDB *tdb, const char *type)
+{
+}
 TransportResult TransportReportStations(TransportDB *tdb, int line_id);
 TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to);

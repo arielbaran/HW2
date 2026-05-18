@@ -10,21 +10,17 @@ int main()
     TransportAddLine(db, "METRO", 5, 23);
     TransportAddLine(db, "METRO", 4, 23);
 
-    // TransportRemoveLine(db, 1);
     TransportRemoveLine(db, 1);
-    TransportRemoveLine(db, 5);
+    TransportRemoveLine(db, 1);
+    // TransportRemoveLine(db, 5);
     TransportRemoveLine(db, 4);
     TransportRemoveLine(db, 4);
-
 
     TransportAddStation(db, 2, "station A");
     TransportAddStation(db, 2, "station b");
-  
 
+    TransportRemoveStation(db, 2, 6);
 
-    printf("%d\n", db->lines->id);
-    printf("%s\n", db->lines->stations->name_station);
-    printf("%s\n", db->lines->stations->next_station->name_station);
 
     return 0;
 }
