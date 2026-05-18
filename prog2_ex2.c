@@ -193,7 +193,9 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         if (curr->id == line_id && curr->id == tdb->lines->id)
         {
             tdb->lines = curr->next_line;
-            while(curr->stations != NULL){
+            while (curr->stations != NULL)
+            {
+                printf("removing station from %d\n", line_id);
                 curr_station = curr->stations;
                 curr->stations = curr_station->next_station;
                 free(curr_station);
@@ -205,7 +207,9 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         if (curr->id == line_id)
         {
             prev->next_line = curr->next_line;
-            while(curr->stations != NULL){
+            while (curr->stations != NULL)
+            {
+                printf("removing station 2\n");
                 curr_station = curr->stations;
                 curr->stations = curr_station->next_station;
                 free(curr_station);
@@ -222,7 +226,8 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
 }
 TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *station)
 {
-    if(line_id <= 0){
+    if (line_id <= 0)
+    {
         return TRANSPORT_INVALID_LINE_NUMBER;
     }
     Station *new_station = (Station *)malloc(sizeof(Station));
@@ -279,13 +284,7 @@ TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned i
 
         if (curr->id = line_id)
         {
-            // remove the index of the station 
-
-           for(int i = 0; i < index; i++) {
-            
-           }
-            
-
+            printf("found the line\n");
         }
 
         prev = curr;
