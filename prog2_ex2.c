@@ -116,6 +116,7 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
     if (line_id <= 0)
     {
         prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
+        return TRANSPORT_INVALID_LINE_NUMBER;
     }
 
     if (price <= 0)
@@ -195,7 +196,9 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         if (curr->id == line_id && curr->id == tdb->lines->id)
         {
             tdb->lines = curr->next_line;
-            while(curr->stations != NULL){
+            while (curr->stations != NULL)
+            {
+                printf("removing station from %d\n", line_id);
                 curr_station = curr->stations;
                 curr->stations = curr_station->next_station;
                 free(curr_station);
@@ -207,7 +210,9 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
         if (curr->id == line_id)
         {
             prev->next_line = curr->next_line;
-            while(curr->stations != NULL){
+            while (curr->stations != NULL)
+            {
+                printf("removing station 2\n");
                 curr_station = curr->stations;
                 curr->stations = curr_station->next_station;
                 free(curr_station);
@@ -224,7 +229,8 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
 }
 TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *station)
 {
-    if(line_id <= 0){
+    if (line_id <= 0)
+    {
         return TRANSPORT_INVALID_LINE_NUMBER;
     }
     Station *new_station = (Station *)malloc(sizeof(Station));
@@ -239,6 +245,7 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
         return TRANSPORT_OUT_OF_MEMORY;
     }
     strcpy(name, station);
+
     new_station->name_station = name;
     new_station->next_station = NULL;
 
@@ -299,9 +306,39 @@ TransportResult TransportReportLines(TransportDB *tdb, const char *type){
     }
     return TRANSPORT_EMPTY;
 
-
-
-
 }
+
+TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned int index)
+{
+    if (line_id <= 0)
+    {
+        prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
+        return TRANSPORT_INVALID_LINE_NUMBER;
+    }
+
+    Transport *curr = tdb->lines;
+    Transport *prev = tdb->lines;
+
+    while (curr)
+    {
+
+        if (curr->id = line_id)
+        {
+            printf("found the line\n");
+        }
+
+        prev = curr;
+        curr = curr->next_line;
+    }
+
+    return 0;
+}
+
+TransportResult TransportReportLines(TransportDB *tdb, const char *type);
 TransportResult TransportReportStations(TransportDB *tdb, int line_id);
 TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to);
+
+void prog2_report_line(line_id number, TransportType type, int num_stations, double price)
+{
+    fprintf(stderr, "%s %d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
+}
