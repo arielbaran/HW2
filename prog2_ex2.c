@@ -316,22 +316,55 @@ TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned i
         return TRANSPORT_INVALID_LINE_NUMBER;
     }
 
-    Transport *curr = tdb->lines;
-    Transport *prev = tdb->lines;
 
-    while (curr)
+    Transport *Line_to_remove = tdb->lines;
+    int found = 0;
+    while (Line_to_remove)
     {
 
-        if (curr->id = line_id)
+        if (Line_to_remove->id == line_id)
         {
-            printf("found the line\n");
+            found = 1;
+            break;
         }
-
-        prev = curr;
-        curr = curr->next_line;
+        
+        Line_to_remove = Line_to_remove->next_line;
+        
     }
 
-    return 0;
+    if(found == 0){
+        return TRANSPORT_DOESNT_EXIST;
+    }
+    if(Line_to_remove->stations == NULL){
+        return TRANSPORT_DOESNT_EXIST;
+    }
+    
+    Station *prev_station = Line_to_remove ->stations;
+    Station *curr_station = Line_to_remove ->stations;
+    if(index==0){
+        Line_to_remove->stations = prev_station->next_station;
+        free(curr_station);
+        return TRANSPORT_SUCCESS;
+    }
+    
+
+    for(int i =0; i<index; i++){
+        if(curr_station->next_station == NULL){
+            return TRANSPORT_DOESNT_EXIST;
+        }
+        prev_station = curr_station;
+        curr_station = curr_station->next_station;
+    }
+    if(curr_station->next_station == NULL){
+        prev_station->next_station = NULL;
+        free(curr_station);
+        return TRANSPORT_SUCCESS;
+    }
+
+    prev_station->next_station = curr_station->next_station;
+    free(curr_station);
+    return TRANSPORT_SUCCESS;
+    
 }
 
 TransportResult TransportReportLines(TransportDB *tdb, const char *type);

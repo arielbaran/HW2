@@ -16,11 +16,16 @@ int main(void){
     //TransportRemoveLine(db, 4);
 
 
-    TransportAddStation(db, 2, "station A");
+    TransportAddStation(db, 2, "station a");
     TransportAddStation(db, 2, "station b");
+    TransportAddStation(db, 2, "station c");
+    TransportAddStation(db, 2, "station d");
 
-    //TransportRemoveStation(db, 2, 6);
+    TransportRemoveStation(db, 2, 0);
     TransportReportLines(db, "TRAIN");
+    printf("%s\n", db->lines->stations->name_station);
+    printf("%s\n", db->lines->stations->next_station->name_station);
+    printf("%s\n", db->lines->stations->next_station->next_station->name_station);
 
     return 0;
 }
