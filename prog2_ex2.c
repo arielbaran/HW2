@@ -152,6 +152,7 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
 
             if (curr->id == new_line->id)
             {
+                //we need to print this?
                 prog2_report_error_message(TRANSPORT_ALREADY_EXISTS);
                 free(new_line);
                 return TRANSPORT_ALREADY_EXISTS;
@@ -294,8 +295,7 @@ TransportResult TransportReportLines(TransportDB *tdb, const char *type){
             not_empty++;
 
             //here we need to use the report properly
-            printf("ID: %d\nTYPE: %s\nNumbers of Stations: %d\nPrice: %.2f\n", curr_line->id, type, numeber_of_stations, curr_line->price);
-            printf("-------------------\n");
+            prog2_report_line(curr_line->id, curr_line->type, numeber_of_stations, curr_line->price);
             //
         }
         curr_line = curr_line->next_line;
@@ -305,8 +305,8 @@ TransportResult TransportReportLines(TransportDB *tdb, const char *type){
 
     }
     return TRANSPORT_EMPTY;
-
 }
+
 
 TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned int index)
 {
@@ -340,5 +340,5 @@ TransportResult TransportReportDirections(TransportDB *tdb, const char *from, co
 
 void prog2_report_line(line_id number, TransportType type, int num_stations, double price)
 {
-    fprintf(stderr, "%s %d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
+    printf("%s %d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
 }
