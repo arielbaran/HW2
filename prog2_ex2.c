@@ -87,6 +87,60 @@ TransportType parse_type(const char *type)
     return 0;
 }
 
+void prog2_report_line(line_id number, TransportType type, int num_stations, double price)
+{
+    printf("%s %d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
+}
+
+void prog2_report_station(const char *name)
+{
+    fprintf(stderr, "Station: %s\n", name);
+}
+
+Transport *FindLine(TransportDB *tdb, int line_id)
+{
+    Transport *line = tdb->lines;
+
+    while (line && line->id != line_id)
+    {
+        line = line->next_line;
+    }
+
+    if (!line)
+    {
+        return NULL;
+    }
+
+    return line;
+}
+
+Transport *FindPrevLine(TransportDB *tdb, int line_id)
+{
+    Transport *curr_line = tdb->lines;
+    Transport *prev_line = NULL;
+
+    while (curr_line && curr_line->id != line_id)
+    {
+        prev_line = curr_line;
+        curr_line = curr_line->next_line;
+    }
+
+    return prev_line;
+}
+
+void DeleteStationList(Station *head)
+{
+    Station *curr = head;
+
+    while (curr)
+    {
+        Station *next = curr->next_station;
+        free(curr->name_station);
+        free(curr);
+        curr = next;
+    }
+}
+
 // ------------------------------------- APP FUNCTIONS ------------------------------------- //
 
 TransportDB *TransportCreate(void)
@@ -101,27 +155,67 @@ TransportDB *TransportCreate(void)
     return db;
 }
 
-void TransportDestory(TransportDB *tdb);
+void TransportDestroy(TransportDB *tdb)
+{
+    Transport *curr = tdb->lines;
+
+    while (curr)
+    {
+        Transport *next = curr->next_line;
+        DeleteStationList(curr->stations);
+        free(curr);
+
+        curr = next;
+    }
+
+    free(tdb);
+}
+
+Transport *TransportAddByPrice(TransportDB *tempdb, Transport *line)
+
+{
+
+    Transport *curr = tempdb->lines;
+    Transport *prev = NULL;
+
+    while (curr && curr->price <= line->price)
+    {
+        prev = curr;
+        curr = curr->next_line;
+    }
+
+    if (prev == NULL)
+    {
+        line->next_line = tempdb->lines;
+        tempdb->lines = line;
+    }
+
+    else
+    {
+        prev->next_line = line;
+        line->next_line = curr;
+    }
+
+    return line;
+}
 
 TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id, float price)
 {
-
     // invlaid line type
     TransportType type_line = parse_type(type);
     if (type_line == 0)
     {
-        prog2_report_error_message(TRANSPORT_INVALID_LINE_TYPE);
+        return TRANSPORT_INVALID_LINE_TYPE;
     }
 
     if (line_id <= 0)
     {
-        prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
         return TRANSPORT_INVALID_LINE_NUMBER;
     }
 
     if (price <= 0)
     {
-        prog2_report_error_message(TRANSPORT_INVALID_PRICE);
+        return TRANSPORT_INVALID_PRICE;
     }
 
     Transport *new_line = (Transport *)malloc(sizeof(Transport));
@@ -135,6 +229,7 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
     new_line->type = type_line;
     new_line->stations = NULL;
 
+    // case: db empty
     if (tdb->lines == NULL)
     {
         tdb->lines = new_line;
@@ -145,15 +240,13 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
     Transport *prev = tdb->lines;
     Transport *curr = tdb->lines;
 
-    while (curr != NULL)
+    while (curr)
     {
         if (curr->id >= new_line->id)
         {
 
             if (curr->id == new_line->id)
             {
-                //we need to print this?
-                prog2_report_error_message(TRANSPORT_ALREADY_EXISTS);
                 free(new_line);
                 return TRANSPORT_ALREADY_EXISTS;
             }
@@ -182,180 +275,170 @@ TransportResult TransportAddLine(TransportDB *tdb, const char *type, int line_id
 
 TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
 {
-
-    if (line_id <= 0)
-    {
-        prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
-    }
-
-    Transport *curr = tdb->lines;
-    Transport *prev = tdb->lines;
-    Station *curr_station = NULL;
-    while (curr != NULL)
-    {
-
-        if (curr->id == line_id && curr->id == tdb->lines->id)
-        {
-            tdb->lines = curr->next_line;
-            while (curr->stations != NULL)
-            {
-                printf("removing station from %d\n", line_id);
-                curr_station = curr->stations;
-                curr->stations = curr_station->next_station;
-                free(curr_station);
-            }
-            free(curr);
-            return TRANSPORT_SUCCESS;
-        }
-
-        if (curr->id == line_id)
-        {
-            prev->next_line = curr->next_line;
-            while (curr->stations != NULL)
-            {
-                printf("removing station 2\n");
-                curr_station = curr->stations;
-                curr->stations = curr_station->next_station;
-                free(curr_station);
-            }
-            free(curr);
-
-            return TRANSPORT_SUCCESS;
-        }
-
-        prev = curr;
-        curr = curr->next_line;
-    }
-    return TRANSPORT_DOESNT_EXIST;
-}
-TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *station)
-{
     if (line_id <= 0)
     {
         return TRANSPORT_INVALID_LINE_NUMBER;
     }
+
+    Transport *line = FindLine(tdb, line_id);
+    if (!line)
+    {
+        return TRANSPORT_DOESNT_EXIST;
+    }
+
+    Transport *prev_line = FindPrevLine(tdb, line_id);
+
+    if (!prev_line)
+    {
+        tdb->lines = line->next_line;
+    }
+    else
+    {
+        prev_line->next_line = line->next_line;
+    }
+
+    // REMOVE ALL STATIONS
+
+    DeleteStationList(line->stations);
+    free(line);
+
+    return TRANSPORT_SUCCESS;
+}
+TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *station)
+{
+
+    if (line_id <= 0)
+    {
+        return TRANSPORT_INVALID_LINE_NUMBER;
+    }
+
+    Transport *line = FindLine(tdb, line_id);
+    if (!line)
+    {
+        return TRANSPORT_DOESNT_EXIST;
+    }
+
+    // allocate memory
     Station *new_station = (Station *)malloc(sizeof(Station));
     if (new_station == NULL)
     {
         return TRANSPORT_OUT_OF_MEMORY;
     }
-    char *name = (char *)malloc(strlen(station) * sizeof(char));
+
+    char *name = (char *)malloc(strlen(station) * sizeof(char) + 1);
     if (name == NULL)
     {
         free(new_station);
         return TRANSPORT_OUT_OF_MEMORY;
     }
+
     strcpy(name, station);
 
+    /// -----------------------------
     new_station->name_station = name;
     new_station->next_station = NULL;
 
-    Transport *curr = tdb->lines;
-    Station *curr_station = curr->stations;
+    Station *curr_station = line->stations;
+    Station *prev_station = line->stations;
+
+    // case no stations yet
     if (curr_station == NULL)
     {
-        curr->stations = new_station;
+        line->stations = new_station;
         return TRANSPORT_SUCCESS;
     }
-    while (curr)
+
+    while (curr_station)
     {
-        if (curr->id == line_id)
-        {
-            while (curr_station->next_station != NULL)
-            {
-                curr_station = curr_station->next_station;
-            }
-            curr_station->next_station = new_station;
-            return TRANSPORT_SUCCESS;
-        }
+        prev_station = curr_station;
+        curr_station = curr_station->next_station;
     }
-    return TRANSPORT_DOESNT_EXIST;
+
+    prev_station->next_station = new_station;
+
+    return TRANSPORT_SUCCESS;
 }
-TransportResult TransportReportLines(TransportDB *tdb, const char *type){
+TransportResult TransportReportLines(TransportDB *tdb, const char *type)
+{
     Transport *curr_line = tdb->lines;
     Station *curr_station = NULL;
     int numeber_of_stations = 0;
     TransportType type_line = parse_type(type);
-    int not_empty = 0; //check if there is at least one line of this type
-    
-    if(type_line == 0){
+    int not_empty = 0; // check if there is at least one line of this type
+
+    if (type_line == 0)
+    {
         return TRANSPORT_INVALID_LINE_TYPE;
     }
-    
+
     while (curr_line != NULL)
     {
-        numeber_of_stations =0;
-        if(curr_line->type == type_line || type_line == ALL){
+        numeber_of_stations = 0;
+        if (curr_line->type == type_line || type_line == ALL)
+        {
             curr_station = curr_line->stations;
-            while (curr_station!=NULL)
+            while (curr_station != NULL)
             {
                 numeber_of_stations++;
                 curr_station = curr_station->next_station;
             }
             not_empty++;
 
-            //here we need to use the report properly
             prog2_report_line(curr_line->id, curr_line->type, numeber_of_stations, curr_line->price);
-            //
         }
+
         curr_line = curr_line->next_line;
     }
-    if(not_empty){
+    if (not_empty)
+    {
         return TRANSPORT_SUCCESS;
-
     }
     return TRANSPORT_EMPTY;
 }
-
 
 TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned int index)
 {
     if (line_id <= 0)
     {
-        prog2_report_error_message(TRANSPORT_INVALID_LINE_NUMBER);
         return TRANSPORT_INVALID_LINE_NUMBER;
     }
 
+    Transport *line = FindLine(tdb, line_id);
 
-    Transport *Line_to_remove = tdb->lines;
-    int found = 0;
-    while (Line_to_remove)
+    if (!line)
     {
-
-        if (Line_to_remove->id == line_id)
-        {
-            found = 1;
-            break;
-        }
-        
-        Line_to_remove = Line_to_remove->next_line;
-        
-    }
-
-    if(found == 0){
         return TRANSPORT_DOESNT_EXIST;
     }
-    if(Line_to_remove->stations == NULL){
-        return TRANSPORT_DOESNT_EXIST;
+
+    if (line->stations == NULL)
+    {
+        return TRANSPORT_EMPTY;
     }
-    
-    Station *prev_station = Line_to_remove ->stations;
-    Station *curr_station = Line_to_remove ->stations;
-    if(index==0){
-        Line_to_remove->stations = prev_station->next_station;
+
+    Station *prev_station = line->stations;
+    Station *curr_station = line->stations;
+
+    // case 1: first station
+    if (index == 0)
+    {
+        line->stations = prev_station->next_station;
         free(curr_station);
         return TRANSPORT_SUCCESS;
     }
-    
 
-    for(int i =0; i<index; i++){
-        if(curr_station->next_station == NULL){
+    for (unsigned int i = 0; i < index; i++)
+    {
+        if (curr_station->next_station == NULL)
+        {
             return TRANSPORT_DOESNT_EXIST;
         }
+
         prev_station = curr_station;
         curr_station = curr_station->next_station;
     }
-    if(curr_station->next_station == NULL){
+
+    if (curr_station->next_station == NULL)
+    {
         prev_station->next_station = NULL;
         free(curr_station);
         return TRANSPORT_SUCCESS;
@@ -364,14 +447,110 @@ TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned i
     prev_station->next_station = curr_station->next_station;
     free(curr_station);
     return TRANSPORT_SUCCESS;
-    
 }
 
-TransportResult TransportReportLines(TransportDB *tdb, const char *type);
-TransportResult TransportReportStations(TransportDB *tdb, int line_id);
-TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to);
-
-void prog2_report_line(line_id number, TransportType type, int num_stations, double price)
+TransportResult TransportReportStations(TransportDB *tdb, int line_id)
 {
-    printf("%s %d [%4d stations] %.2f$\n", type_to_string(type), number, num_stations, price);
+
+    if (line_id <= 0)
+    {
+        return TRANSPORT_INVALID_LINE_NUMBER;
+    }
+
+    Transport *line = FindLine(tdb, line_id);
+
+    if (!line)
+    {
+        return TRANSPORT_DOESNT_EXIST;
+    }
+
+    if (!line->stations)
+    {
+        return TRANSPORT_EMPTY;
+    }
+
+    int num_of_stations = 0;
+
+    Station *curr_station = line->stations;
+
+    while (curr_station)
+    {
+        num_of_stations++;
+        curr_station = curr_station->next_station;
+    }
+
+    prog2_report_line(line->id, line->type, num_of_stations, line->price);
+
+    curr_station = line->stations;
+
+    while (curr_station)
+    {
+        prog2_report_station(curr_station->name_station);
+        curr_station = curr_station->next_station;
+    }
+
+    return TRANSPORT_SUCCESS;
+}
+
+TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to)
+{
+
+    if (!tdb->lines)
+    {
+        return TRANSPORT_EMPTY;
+    }
+
+    Transport *curr_line = tdb->lines;
+    Transport *prev_line = tdb->lines;
+
+    TransportDB *temp_db = TransportCreate();
+
+    while (curr_line)
+    {
+        // entering the line
+        Station *curr_station = curr_line->stations;
+
+        int found_from = 0;
+        int found_to = 0;
+
+        while (curr_station)
+        {
+            if (strcmp(curr_station->name_station, from) == 0)
+
+            {
+                found_from = 1;
+            }
+
+            if (strcmp(curr_station->name_station, to) == 0 && found_from)
+            {
+                found_to = 1;
+            }
+
+            curr_station = curr_station->next_station;
+        }
+
+        // if found we add it to the temp_db
+
+        if (found_from && found_to)
+        {
+
+            Transport *copy = malloc(sizeof(Transport));
+            copy->id = curr_line->id;
+            copy->type = curr_line->type;
+            copy->price = curr_line->price;
+            copy->stations = NULL;
+            copy->next_line = NULL;
+
+            TransportAddByPrice(temp_db, copy);
+        }
+
+        prev_line = curr_line;
+        curr_line = curr_line->next_line;
+    }
+
+    // printing the list
+    TransportReportLines(temp_db, "ALL");
+    TransportDestroy(temp_db);
+
+    return TRANSPORT_SUCCESS;
 }
