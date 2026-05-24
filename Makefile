@@ -20,7 +20,7 @@ TEST2 = my_test2
 
 MAIN = main.c
 PROG = transport_db
-OBJS = transport_db.o prog2_ex2.o
+OBJS = $(PROG).o
 TEST = TEST1
 OUT_FILE = $(TEST).out
 ERR_FILE = $(TEST).err
@@ -30,8 +30,6 @@ ifdef DEBUG
 	CFLAGS += -DDEBUG
 	REFILES = 
 endif
-
-.PHONY: help test test1 test2 clean
 
 help:
 	@echo "Welcome to Programming 2 Ex2 Makefile :-)"
@@ -53,19 +51,14 @@ test1: test
 test2: TEST = TEST2
 test2: test
 
-test: $(PROG)
+test: clean $(PROG)
 	./$(PROG) $(REFILES)
 
-$(PROG): FORCE $(OBJS) $(MAIN)
-	$(CC) $(CFLAGS) -D$(TEST) $(OBJS) $(MAIN) -o $@
+$(PROG): $(OBJS) $(MAIN)
+	$(CC) $(CFLAGS) -D$(TEST) $(OBJS) prog2_ex2.o $(MAIN) -o $@
 
-transport_db.o: transport_db.c transport_db.h prog2_ex2.h
+$(PROG).o: $(PROG).c prog2_ex2.h $(PROG).h
 	$(CC) $(CFLAGS) -c $*.c
-
-prog2_ex2.o: prog2_ex2.c prog2_ex2.h
-	$(CC) $(CFLAGS) -c $*.c
-
-FORCE:
 
 clean:
-	rm -f $(OBJS) $(PROG) TEST* test*.out test*.err main.exe
+	rm -f $(OBJS) $(PROG) TEST*

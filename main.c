@@ -1,36 +1,32 @@
+#include <stdio.h>
 #include "prog2_ex2.h"
 #include "transport_db.h"
-#include <stdio.h>
 
 #define MAGENTA "\033[35m"
 #define RESET "\033[0m"
 
 #ifdef DEBUG
-#define PRINT_DBG(command)                                                          \
-    do                                                                              \
-    {                                                                               \
+#define PRINT_DBG(command) \
+    do { \
         printf(MAGENTA "[DEBUG] %s:%d - %s\n" RESET, __func__, __LINE__, #command); \
-    } while (0)
+    } while(0)
 #else
 #define PRINT_DBG(command)
 #endif
 
-#define CHECK_RESULT(command)                   \
-    do                                          \
-    {                                           \
-        PRINT_DBG(command);                     \
-        TransportResult result = command;       \
-        if (result != TRANSPORT_SUCCESS)        \
-        {                                       \
+#define CHECK_RESULT(command) \
+    do { \
+        PRINT_DBG(command); \
+        TransportResult result = command; \
+        if (result != TRANSPORT_SUCCESS) { \
             prog2_report_error_message(result); \
-        }                                       \
-    } while (0)
+        } \
+    } while(0)
 
 int test1(void)
 {
-    TransportDB *db = TransportCreate();
-    if (db == NULL)
-    {
+    TransportDB* db = TransportCreate();
+    if (db == NULL) {
         return 0;
     }
 
@@ -44,18 +40,19 @@ int test1(void)
     CHECK_RESULT(TransportAddLine(db, "BUS", 8, 7.0));
     CHECK_RESULT(TransportAddLine(db, "BUS", 9, 5.5));
     CHECK_RESULT(TransportAddLine(db, "BUS", 10, 6.0));
-
+    
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 101, 20.0));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 102, 22.5));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 103, 25.0));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 104, 30.0));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 105, 15.0));
-
+    
     CHECK_RESULT(TransportAddLine(db, "METRO", 201, 10.0));
     CHECK_RESULT(TransportAddLine(db, "METRO", 202, 10.0));
     CHECK_RESULT(TransportAddLine(db, "METRO", 203, 12.0));
     CHECK_RESULT(TransportAddLine(db, "METRO", 204, 10.0));
     CHECK_RESULT(TransportAddLine(db, "METRO", 205, 15.0));
+
 
     CHECK_RESULT(TransportAddStation(db, 1, "Tel Aviv"));
     CHECK_RESULT(TransportAddStation(db, 1, "Ramat Gan"));
@@ -133,7 +130,7 @@ int test1(void)
 
     CHECK_RESULT(TransportReportLines(db, "BUS"));
     CHECK_RESULT(TransportReportLines(db, "METRO"));
-
+    
     CHECK_RESULT(TransportReportStations(db, 1));
     CHECK_RESULT(TransportReportStations(db, 101));
     CHECK_RESULT(TransportReportStations(db, 201));
@@ -144,23 +141,23 @@ int test1(void)
     CHECK_RESULT(TransportReportDirections(db, "Jerusalem", "Tel Aviv"));
     CHECK_RESULT(TransportReportDirections(db, "Petah Tikva", "Tel Aviv"));
     CHECK_RESULT(TransportReportDirections(db, "Beer Sheva", "Tel Aviv"));
-
+    
     CHECK_RESULT(TransportRemoveLine(db, 1));
     CHECK_RESULT(TransportRemoveLine(db, 101));
     CHECK_RESULT(TransportRemoveLine(db, 201));
-
+  
     CHECK_RESULT(TransportReportLines(db, "ALL"));
-
+    
     TransportDestroy(db);
 
     return 0;
 }
 
+
 int test2(void)
 {
-    TransportDB *db = TransportCreate();
-    if (db == NULL)
-    {
+    TransportDB* db = TransportCreate();
+    if (db == NULL) {
         return 1;
     }
 
@@ -171,12 +168,12 @@ int test2(void)
     CHECK_RESULT(TransportAddLine(db, "BUS", 8, 4.5));
     CHECK_RESULT(TransportAddLine(db, "BUS", 149, 8.0));
     CHECK_RESULT(TransportAddLine(db, "BUS", 947, 24.5));
-
+    
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 50, 18.0));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 51, 35.5));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 52, 40.0));
     CHECK_RESULT(TransportAddLine(db, "TRAIN", 53, 20.0));
-
+    
     CHECK_RESULT(TransportAddLine(db, "METRO", 1, 12.0));
     CHECK_RESULT(TransportAddLine(db, "METRO", 2, 12.0));
     CHECK_RESULT(TransportAddLine(db, "METRO", 3, 12.0));
@@ -254,7 +251,7 @@ int test2(void)
     CHECK_RESULT(TransportReportLines(db, "BUS"));
     CHECK_RESULT(TransportReportLines(db, "TRAIN"));
     CHECK_RESULT(TransportReportLines(db, "METRO"));
-
+    
     CHECK_RESULT(TransportReportStations(db, 601));
     CHECK_RESULT(TransportReportStations(db, 29));
     CHECK_RESULT(TransportReportStations(db, 947));
@@ -268,18 +265,18 @@ int test2(void)
     CHECK_RESULT(TransportReportDirections(db, "Petah Tikva", "Tel Aviv"));
     CHECK_RESULT(TransportReportDirections(db, "Netanya", "Jerusalem"));
     CHECK_RESULT(TransportReportDirections(db, "Binyamina", "Herzliya"));
-
-    CHECK_RESULT(TransportReportDirections(db, "Jerusalem", "Nahariya"));
+    
+    CHECK_RESULT(TransportReportDirections(db, "Jerusalem", "Nahariya")); 
     CHECK_RESULT(TransportReportDirections(db, "Eilat", "Tiberias"));
 
     CHECK_RESULT(TransportRemoveLine(db, 601));
     CHECK_RESULT(TransportRemoveLine(db, 605));
     CHECK_RESULT(TransportRemoveLine(db, 50));
     CHECK_RESULT(TransportRemoveLine(db, 1));
-
+    
     CHECK_RESULT(TransportReportLines(db, "ALL"));
     CHECK_RESULT(TransportReportDirections(db, "Netanya", "Tel Aviv"));
-
+    
     CHECK_RESULT(TransportRemoveLine(db, 601));
     CHECK_RESULT(TransportRemoveLine(db, 50));
 
@@ -287,6 +284,8 @@ int test2(void)
 
     return 0;
 }
+
+
 
 int main(void)
 {
@@ -297,5 +296,5 @@ int main(void)
     return test2();
 #endif
 
-    return 0;
+return 0;
 }

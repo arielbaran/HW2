@@ -15,8 +15,7 @@ typedef int line_id;
 /*
  * Transport type enumeration
  */
-typedef enum
-{
+typedef enum {
     BUS = 1,
     TRAIN = 2,
     METRO = 4,
@@ -25,8 +24,8 @@ typedef enum
 
 /*
  * Transport error enumeration
- */
-typedef enum
+*/
+typedef enum 
 {
     TRANSPORT_SUCCESS,
     TRANSPORT_NULL_ARGUMENTS,
@@ -54,7 +53,7 @@ void prog2_report_error_message(TransportResult error);
 /*
 function: prog2_report_line
  * Description: Reports information about a transport line
- * Parameters:
+ * Parameters: 
  *             number - the line number
  *             type - the transport type (BUS, TRAIN, METRO)
  *             num_stations - the actual number of stations that were added to the line
