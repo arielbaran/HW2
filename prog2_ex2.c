@@ -128,10 +128,9 @@ Transport *FindPrevLine(TransportDB *tdb, int line_id)
     return prev_line;
 }
 
-void DeleteStationList(Station *head)
+void DeleteStationsList(Station *station)
 {
-    Station *curr = head;
-
+    Station *curr = station;
     while (curr)
     {
         Station *next = curr->next_station;
@@ -157,7 +156,6 @@ TransportDB *TransportCreate(void)
 
 void TransportDestroy(TransportDB *tdb)
 {
-
     if (!tdb)
     {
         return;
@@ -168,7 +166,7 @@ void TransportDestroy(TransportDB *tdb)
     while (curr)
     {
         Transport *next = curr->next_line;
-        DeleteStationList(curr->stations);
+        DeleteStationsList(curr->stations);
         free(curr);
 
         curr = next;
@@ -314,7 +312,7 @@ TransportResult TransportRemoveLine(TransportDB *tdb, int line_id)
 
     // REMOVE ALL STATIONS
 
-    DeleteStationList(line->stations);
+    DeleteStationsList(line->stations);
     free(line);
 
     return TRANSPORT_SUCCESS;
@@ -348,7 +346,6 @@ TransportResult TransportAddStation(TransportDB *tdb, int line_id, const char *s
     char *name = (char *)malloc(strlen(station) * sizeof(char) + 1);
     if (name == NULL)
     {
-
         free(new_station);
         return TRANSPORT_OUT_OF_MEMORY;
     }
@@ -533,7 +530,6 @@ TransportResult TransportReportStations(TransportDB *tdb, int line_id)
 }
 
 TransportResult TransportReportDirections(TransportDB *tdb, const char *from, const char *to)
-
 {
 
     if (!tdb || !from || !to)
@@ -569,6 +565,7 @@ TransportResult TransportReportDirections(TransportDB *tdb, const char *from, co
             if (strcmp(curr_station->name_station, to) == 0 && found_from)
             {
                 found_to = 1;
+                break;
             }
 
             curr_station = curr_station->next_station;
@@ -579,8 +576,7 @@ TransportResult TransportReportDirections(TransportDB *tdb, const char *from, co
         if (found_from && found_to)
         {
 
-            Transport *copy_line = malloc(sizeof(Transport));
-
+            Transport *copy_line = (Transport *)malloc(sizeof(Transport));
             if (!copy_line)
             {
                 return TRANSPORT_OUT_OF_MEMORY;
@@ -594,7 +590,6 @@ TransportResult TransportReportDirections(TransportDB *tdb, const char *from, co
 
             TransportAddByPrice(temp_db, copy_line);
             Station *curr_station = curr_line->stations;
-
             if (!curr_station)
             {
                 return TRANSPORT_OUT_OF_MEMORY;
