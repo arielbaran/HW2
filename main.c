@@ -1,6 +1,6 @@
 #include "prog2_ex2.h"
+#include "transport_db.h"
 #include <stdio.h>
-#include "prog2_ex2.c"
 
 #define MAGENTA "\033[35m"
 #define RESET "\033[0m"
