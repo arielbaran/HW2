@@ -55,7 +55,7 @@ test: clean $(PROG)
 	./$(PROG) $(REFILES)
 
 $(PROG): $(OBJS) $(MAIN)
-	$(CC) $(CFLAGS) -D$(TEST) $(OBJS) prog2_ex2.o $(MAIN) -o $@
+	$(CC) $(CFLAGS) -no-pie -D$(TEST) $(OBJS) prog2_ex2.o $(MAIN) -o $@
 
 $(PROG).o: $(PROG).c prog2_ex2.h $(PROG).h
 	$(CC) $(CFLAGS) -c $*.c
