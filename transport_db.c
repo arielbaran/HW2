@@ -83,6 +83,10 @@ static Transport *FindPrevLine(TransportDB *tdb, int line_id)
 
 static void DeleteStationsList(Station *station)
 {
+    if(station == NULL){
+
+        return;
+    }
     Station *curr = station;
     while (curr)
     {
@@ -124,7 +128,6 @@ void TransportDestroy(TransportDB *tdb)
 
         curr = next;
     }
-
     free(tdb);
 }
 
@@ -431,6 +434,7 @@ TransportResult TransportRemoveStation(TransportDB *tdb, int line_id, unsigned i
     }
 
     prev_station->next_station = curr_station->next_station;
+    free(curr_station->name_station);
     free(curr_station);
     return TRANSPORT_SUCCESS;
 }

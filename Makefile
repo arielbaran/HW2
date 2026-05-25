@@ -1,19 +1,5 @@
-############################################################################
-# Shenkar - Software Eng. Dept.
-#
-# Makefile for Programming 2 - Ex2
-# Author David Avdat
-# Date: 22-May-2026
-#
-#
-#
-############################################################################
-# Feel free to change this file's content to fit your needs and file names #
-############################################################################
-
-
 CC     = gcc
-CFLAGS = -Werror --pedantic-errors -std=c99
+CFLAGS = -g -O0 -Werror --pedantic-errors -std=c99 -no-pie 
 
 TEST1 = my_test1
 TEST2 = my_test2
@@ -55,7 +41,7 @@ test: clean $(PROG)
 	./$(PROG) $(REFILES)
 
 $(PROG): $(OBJS) $(MAIN)
-	$(CC) $(CFLAGS) -no-pie -D$(TEST) $(OBJS) prog2_ex2.o $(MAIN) -o $@
+	$(CC) $(CFLAGS) -D$(TEST) $(OBJS) prog2_ex2.o $(MAIN) -o $@
 
 $(PROG).o: $(PROG).c prog2_ex2.h $(PROG).h
 	$(CC) $(CFLAGS) -c $*.c
